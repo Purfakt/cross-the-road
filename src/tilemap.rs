@@ -1,7 +1,10 @@
 use bevy::{math::vec3, prelude::*};
 
-const TILE_SIZE: usize = 32;
-const SCALE: f32 = 2.;
+pub const TILE_SIZE: usize = 32;
+pub const TILE_ROWS: u32 = 10;
+pub const TILE_COLUMNS: u32 = 10;
+
+pub const SCALE: f32 = 2.;
 
 pub struct TilesetPlugin;
 
@@ -19,9 +22,6 @@ pub enum TextureName {
     Car3,
     Duck,
 }
-
-#[derive(Component)]
-pub struct TestName(pub String);
 
 impl TextureName {
     pub fn index(&self) -> usize {
@@ -63,7 +63,6 @@ pub fn spawn_tile(
                 ..Default::default()
             },
         ))
-        .insert(TestName("Hello".to_string()))
         .id()
 }
 
@@ -73,7 +72,13 @@ fn load_texture(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let texture = asset_server.load::<Image>("tiles.png");
-    let layout = TextureAtlasLayout::from_grid(UVec2::splat(TILE_SIZE as u32), 10, 10, None, None);
+    let layout = TextureAtlasLayout::from_grid(
+        UVec2::splat(TILE_SIZE as u32),
+        TILE_COLUMNS,
+        TILE_ROWS,
+        None,
+        None,
+    );
     let texture_atlas_handle = texture_atlas_layouts.add(layout);
 
     commands.insert_resource(Tileset {

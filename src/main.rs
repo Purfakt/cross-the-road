@@ -1,17 +1,13 @@
-use bevy::{math::vec2, prelude::*, window::WindowResolution};
+use bevy::{prelude::*, window::WindowResolution};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use tilemap::{spawn_tile, TextureName, Tileset, TilesetPlugin};
+use level::{LevelPlugin, LEVEL_COLS, LEVEL_ROWS};
+use tilemap::{TilesetPlugin, SCALE, TILE_SIZE};
 
+pub mod level;
 pub mod tilemap;
 
-const TILE_SIZE: usize = 32;
-const SCALE: f32 = 2.;
-
-const ROWS: usize = 9;
-const COLS: usize = 16;
-
-const WINDOW_WIDTH: f32 = (TILE_SIZE * COLS) as f32 * SCALE;
-const WINDOW_HEIGHT: f32 = (TILE_SIZE * ROWS) as f32 * SCALE;
+const WINDOW_WIDTH: f32 = (TILE_SIZE * LEVEL_COLS) as f32 * SCALE;
+const WINDOW_HEIGHT: f32 = (TILE_SIZE * LEVEL_ROWS) as f32 * SCALE;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 enum AppState {
@@ -37,13 +33,13 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
             WorldInspectorPlugin::new(),
             TilesetPlugin,
+            LevelPlugin,
         ))
         .init_state::<AppState>()
         .add_systems(Startup, setup)
         .run();
 }
 
-fn setup(mut commands: Commands, tileset: Res<Tileset>) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2d);
-    let mut _entity = spawn_tile(&mut commands, &tileset, &TextureName::Grass, &vec2(0., 0.));
 }
