@@ -1,11 +1,13 @@
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use level::LevelPlugin;
+use movement::MovementPlugin;
 use player::PlayerPlugin;
 use tilesheet::{TilesetPlugin, SCALE, TILE_SIZE};
 use world::{LEVEL_COLS, LEVEL_ROWS};
 
 pub mod level;
+pub mod movement;
 pub mod player;
 pub mod tilesheet;
 pub mod world;
@@ -39,6 +41,7 @@ fn main() {
             TilesetPlugin,
             LevelPlugin,
             PlayerPlugin,
+            MovementPlugin,
         ))
         .init_state::<AppState>()
         .add_systems(Startup, setup)

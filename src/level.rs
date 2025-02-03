@@ -66,7 +66,8 @@ pub struct Level {
 fn setup_level(mut commands: Commands, tileset: Res<Tileset>) {
     let lanes = commands
         .spawn((
-            Transform::from_xyz(CELL_0_X, CELL_0_Y, 0.),
+            Visibility::Inherited,
+            Transform::from_xyz(CELL_0_X, CELL_0_Y, -100.),
             Name::new("Lanes"),
         ))
         .id();
@@ -76,7 +77,11 @@ fn setup_level(mut commands: Commands, tileset: Res<Tileset>) {
     commands.entity(lanes).add_child(spawn_lanes);
 
     let car_lanes = commands
-        .spawn((Name::new("CarLanes"), Transform::from_xyz(0., 0., 0.)))
+        .spawn((
+            Visibility::Inherited,
+            Transform::from_xyz(0., 0., 0.),
+            Name::new("CarLanes"),
+        ))
         .id();
 
     let amount_car_lanes = 6;
@@ -91,7 +96,11 @@ fn setup_level(mut commands: Commands, tileset: Res<Tileset>) {
     commands.entity(lanes).add_child(car_lanes);
 
     let end_lanes = commands
-        .spawn((Name::new("EndLanes"), Transform::from_xyz(0., 0., 0.)))
+        .spawn((
+            Transform::from_xyz(0., 0., 0.),
+            Visibility::Inherited,
+            Name::new("EndLanes"),
+        ))
         .id();
 
     for idx in amount_car_lanes + 1..remaining_lanes + amount_car_lanes + 1 {
@@ -106,9 +115,9 @@ fn insert_spawn_lane(commands: &mut Commands, tileset: &Res<Tileset>) -> Entity 
     let lane_entity = commands
         .spawn((
             SpawnLane,
-            Name::new("SpawnLane"),
             Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
             Visibility::Inherited,
+            Name::new("SpawnLane"),
         ))
         .id();
 
@@ -123,7 +132,7 @@ fn insert_spawn_lane(commands: &mut Commands, tileset: &Res<Tileset>) -> Entity 
 
         commands
             .entity(tile_entity)
-            .insert(Name::new(col.to_string()));
+            .insert((Visibility::Inherited, Name::new(col.to_string())));
         commands.entity(lane_entity).add_child(tile_entity);
     }
 
@@ -148,16 +157,11 @@ fn insert_car_lane(
 
     for col in 0..LEVEL_COLS {
         let x = col as f32 * SCALED_TILE_SIZE;
-        let tile_entity = spawn_tile(
-            commands,
-            tileset,
-            &TextureName::Road,
-            &Vec3::new(x, 0., 100.),
-        );
+        let tile_entity = spawn_tile(commands, tileset, &TextureName::Road, &Vec3::new(x, 0., 0.));
 
         commands
             .entity(tile_entity)
-            .insert(Name::new(col.to_string()));
+            .insert((Visibility::Inherited, Name::new(col.to_string())));
         commands.entity(lane_entity).add_child(tile_entity);
     }
 
@@ -169,9 +173,9 @@ fn insert_end_lane(commands: &mut Commands, tileset: &Res<Tileset>, idx: usize) 
     let lane_entity = commands
         .spawn((
             EndLane,
-            Name::new(format!("EndLane{}", idx.to_string())),
             Transform::from_translation(Vec3::new(0.0, y, 0.0)),
             Visibility::Inherited,
+            Name::new(format!("EndLane{}", idx.to_string())),
         ))
         .id();
 
@@ -186,7 +190,7 @@ fn insert_end_lane(commands: &mut Commands, tileset: &Res<Tileset>, idx: usize) 
 
         commands
             .entity(tile_entity)
-            .insert(Name::new(col.to_string()));
+            .insert((Visibility::Inherited, Name::new(col.to_string())));
         commands.entity(lane_entity).add_child(tile_entity);
     }
 
