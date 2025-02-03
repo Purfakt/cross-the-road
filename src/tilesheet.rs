@@ -3,8 +3,8 @@ use bevy::{math::vec3, prelude::*};
 pub const TILE_SIZE: usize = 32;
 pub const TILE_ROWS: u32 = 10;
 pub const TILE_COLUMNS: u32 = 10;
-
 pub const SCALE: f32 = 2.;
+pub const SCALED_TILE_SIZE: f32 = TILE_SIZE as f32 * SCALE;
 
 pub struct TilesetPlugin;
 
@@ -46,7 +46,7 @@ pub fn spawn_tile(
     commands: &mut Commands,
     tileset: &Tileset,
     texture_name: &TextureName,
-    position: &Vec2,
+    position: &Vec3,
 ) -> Entity {
     commands
         .spawn((
@@ -58,7 +58,7 @@ pub fn spawn_tile(
                 },
             ),
             Transform {
-                translation: vec3(position.x, position.y, 0.),
+                translation: *position,
                 scale: vec3(SCALE, SCALE, 1.),
                 ..Default::default()
             },

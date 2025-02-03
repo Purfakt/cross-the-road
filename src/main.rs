@@ -1,10 +1,14 @@
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use level::{LevelPlugin, LEVEL_COLS, LEVEL_ROWS};
-use tilemap::{TilesetPlugin, SCALE, TILE_SIZE};
+use level::LevelPlugin;
+use player::PlayerPlugin;
+use tilesheet::{TilesetPlugin, SCALE, TILE_SIZE};
+use world::{LEVEL_COLS, LEVEL_ROWS};
 
 pub mod level;
-pub mod tilemap;
+pub mod player;
+pub mod tilesheet;
+pub mod world;
 
 const WINDOW_WIDTH: f32 = (TILE_SIZE * LEVEL_COLS) as f32 * SCALE;
 const WINDOW_HEIGHT: f32 = (TILE_SIZE * LEVEL_ROWS) as f32 * SCALE;
@@ -34,6 +38,7 @@ fn main() {
             WorldInspectorPlugin::new(),
             TilesetPlugin,
             LevelPlugin,
+            PlayerPlugin,
         ))
         .init_state::<AppState>()
         .add_systems(Startup, setup)
