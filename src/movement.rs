@@ -1,4 +1,5 @@
-use bevy::{math::vec2, prelude::*};
+use bevy::{math::vec3, prelude::*};
+use std::fmt::Display;
 
 pub struct MovementPlugin;
 
@@ -8,26 +9,40 @@ impl Plugin for MovementPlugin {
     }
 }
 
-#[derive(Component, Deref)]
-pub struct Direction(Vec2);
+#[derive(Component, Deref, Debug, Clone, Copy)]
+pub struct Direction(Vec3);
 
-impl From<Vec2> for Direction {
-    fn from(value: Vec2) -> Self {
+impl Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<Vec3> for Direction {
+    fn from(value: Vec3) -> Self {
         Direction(value.normalize_or_zero())
     }
 }
 
 impl Direction {
     pub fn new() -> Self {
-        Vec2::ZERO.into()
+        Vec3::ZERO.into()
     }
 
-    pub fn set(&mut self, vec: Vec2) {
+    pub fn left() -> Self {
+        Vec3::NEG_X.into()
+    }
+
+    pub fn right() -> Self {
+        Vec3::X.into()
+    }
+
+    pub fn set(&mut self, vec: Vec3) {
         self.0 = vec.normalize_or_zero().into();
     }
 
-    pub fn set_xy(&mut self, x: f32, y: f32) {
-        self.set(vec2(x, y));
+    pub fn set_xy(&mut self, x: f32, y: f32, z: f32) {
+        self.set(vec3(x, y, z));
     }
 }
 

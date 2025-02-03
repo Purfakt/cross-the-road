@@ -1,4 +1,4 @@
-use bevy::{math::vec2, prelude::*};
+use bevy::{math::vec3, prelude::*};
 
 use crate::{
     movement::{Direction, Movable, Speed},
@@ -29,7 +29,7 @@ fn spawn_player(mut commands: Commands, tileset: Res<Tileset>) {
     commands.entity(entity).insert((
         Player,
         Direction::new(),
-        Speed(100.),
+        Speed(200.),
         Movable,
         Name::new("Player"),
     ));
@@ -53,6 +53,6 @@ fn handle_input(mut query: Query<&mut Direction, With<Player>>, input: Res<Butto
             x -= 1.;
         };
 
-        direction.set(vec2(x, y));
+        direction.set(vec3(x, y, 0.));
     }
 }
