@@ -1,0 +1,14 @@
+{
+  "levels": [
+    {
+      "level": 1,
+      "lanes": [
+        {
+          "direction": "Left",
+          "spawn_delays": [2, 3, 2],
+          "speed": 100
+        }
+      ]
+    }
+  ]
+}

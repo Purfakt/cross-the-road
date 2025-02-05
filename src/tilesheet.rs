@@ -47,21 +47,25 @@ pub fn spawn_tile(
     tileset: &Tileset,
     texture_name: &TextureName,
     position: &Vec3,
+    flip_x: bool,
 ) -> Entity {
+    let mut sprite = Sprite::from_atlas_image(
+        tileset.image.clone(),
+        TextureAtlas {
+            layout: tileset.layout.clone(),
+            index: texture_name.index(),
+        },
+    );
+    sprite.flip_x = flip_x;
     commands
         .spawn((
-            Sprite::from_atlas_image(
-                tileset.image.clone(),
-                TextureAtlas {
-                    layout: tileset.layout.clone(),
-                    index: texture_name.index(),
-                },
-            ),
+            sprite,
             Transform {
                 translation: *position,
                 scale: vec3(SCALE, SCALE, 1.),
                 ..Default::default()
             },
+            Visibility::Inherited,
         ))
         .id()
 }

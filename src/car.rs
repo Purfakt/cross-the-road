@@ -9,57 +9,84 @@ pub struct CarPlugin;
 
 impl Plugin for CarPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup)
-            .add_event::<SpawnCar>()
+        app.add_event::<SpawnCarEvent>()
             .add_systems(Update, (timer_tick, car_spawn));
+    }
+}
+
+pub struct CarSettings {
+    direction: Direction,
+    speed: f32,
+    texture: TextureName,
+}
+
+impl Default for CarSettings {
+    fn default() -> Self {
+        Self {
+            direction: Direction::left(),
+            speed: 100.,
+            texture: TextureName::Car1,
+        }
     }
 }
 
 #[derive(Component)]
 pub struct Car;
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct CarSpawner {
-    current_timer_index: usize,
-    timings: Vec<f32>,
-    position: Vec3,
-    direction: Direction,
+    pub current_timer_index: usize,
+    pub timings: Vec<f32>,
+    pub position: Vec3,
+    pub direction: Direction,
+    pub speed: f32,
 }
 
 #[derive(Event, Debug)]
-pub struct SpawnCar {
-    position: Vec3,
-    direction: Direction,
+pub struct SpawnCarEvent {
+    pub car_spawner: CarSpawner,
+    pub entity: Entity,
 }
 
 #[derive(Component, Deref, DerefMut)]
 pub struct SpawnDelay(pub Timer);
 
-fn setup(mut commands: Commands) {
-    commands.spawn((
-        CarSpawner {
-            current_timer_index: 1,
-            timings: vec![2., 1., 3.],
-            position: vec3(0., 0., 0.),
-            direction: Direction::left(),
-        },
-        SpawnDelay(Timer::from_seconds(2., TimerMode::Once)),
-    ));
+pub fn spawn_car_spawner(
+    commands: &mut Commands,
+    timings: &Vec<f32>,
+    position: Vec3,
+    direction: Direction,
+    speed: f32,
+) -> Entity {
+    commands
+        .spawn((
+            CarSpawner {
+                current_timer_index: 0,
+                timings: timings.clone(),
+                position,
+                direction,
+                speed,
+            },
+            Transform::from_translation(vec3(0., 0., 0.)),
+            Visibility::Inherited,
+            SpawnDelay(Timer::from_seconds(2., TimerMode::Once)),
+        ))
+        .id()
 }
 
 fn timer_tick(
     mut commands: Commands,
     time: Res<Time>,
     mut query: Query<(Entity, &mut SpawnDelay, &mut CarSpawner)>,
-    mut spawn_car_event: EventWriter<SpawnCar>,
+    mut spawn_car_event: EventWriter<SpawnCarEvent>,
 ) {
     for (entity, mut delay, mut car_spawner) in &mut query {
         if delay.tick(time.delta()).just_finished() {
             let car = &car_spawner;
 
-            spawn_car_event.send(SpawnCar {
-                position: car.position,
-                direction: car.direction,
+            spawn_car_event.send(SpawnCarEvent {
+                car_spawner: car_spawner.clone(),
+                entity,
             });
 
             let timings = &car.timings;
@@ -87,31 +114,46 @@ fn timer_tick(
 fn car_spawn(
     mut commands: Commands,
     tileset: Res<Tileset>,
-    mut spawn_car_events: EventReader<SpawnCar>,
+    mut spawn_car_events: EventReader<SpawnCarEvent>,
 ) {
     for event in spawn_car_events.read() {
-        spawn_car(
+        let texture = match rand::random_range(0..=2) {
+            0 => TextureName::Car1,
+            1 => TextureName::Car2,
+            _ => TextureName::Car3,
+        };
+
+        let car = spawn_car(
             &mut commands,
             &tileset,
-            &TextureName::Car1,
-            &event.position,
-            event.direction,
+            CarSettings {
+                texture,
+                direction: event.car_spawner.direction,
+                speed: event.car_spawner.speed,
+            },
+            &event.car_spawner.position,
         );
+
+        commands.entity(event.entity).add_child(car);
     }
 }
 
 fn spawn_car(
     commands: &mut Commands,
     tileset: &Tileset,
-    texture_name: &TextureName,
+    settings: CarSettings,
     position: &Vec3,
-    direction: Direction,
 ) -> Entity {
-    let car_entity = spawn_tile(commands, tileset, texture_name, position);
+    let flip_x = settings.direction.x > 0.;
+    let car_entity = spawn_tile(commands, tileset, &settings.texture, position, flip_x);
 
-    commands
-        .entity(car_entity)
-        .insert((Car, Movable, direction, Speed(100.), Name::new("Car")));
+    commands.entity(car_entity).insert((
+        Car,
+        Movable,
+        settings.direction,
+        Speed(settings.speed),
+        Name::new("Car"),
+    ));
 
     car_entity
 }

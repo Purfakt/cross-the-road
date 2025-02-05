@@ -24,6 +24,7 @@ fn spawn_player(mut commands: Commands, tileset: Res<Tileset>) {
         &tileset,
         &TextureName::Duck,
         &Vec3::new(0., CELL_0_Y, 100.),
+        false,
     );
 
     commands.entity(entity).insert((
