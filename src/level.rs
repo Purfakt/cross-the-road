@@ -15,7 +15,7 @@ impl Plugin for LevelPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.init_state::<AssetState>()
             .add_plugins(JsonAssetPlugin::<Levels>::new(&["levels.json"]))
-            .add_systems(Startup, setup)
+            .add_systems(Startup, load_levels_asset)
             .add_systems(Update, setup_level.run_if(in_state(AssetState::Loading)));
     }
 }
@@ -99,7 +99,7 @@ pub struct Level {
     pub lanes_amount: usize,
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn load_levels_asset(mut commands: Commands, asset_server: Res<AssetServer>) {
     let handle: Handle<Levels> = asset_server.load("levels.json");
     commands.insert_resource(LevelHandle(handle));
 }

@@ -7,6 +7,21 @@
           "direction": "Left",
           "spawn_delays": [2, 3, 2],
           "speed": 100
+        },
+        {
+          "direction": "Left",
+          "spawn_delays": [5],
+          "speed": 50
+        },
+        {
+          "direction": "Right",
+          "spawn_delays": [2, 2, 5],
+          "speed": 150
+        },
+        {
+          "direction": "Left",
+          "spawn_delays": [1, 3, 2],
+          "speed": 100
         }
       ]
     }

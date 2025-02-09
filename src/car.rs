@@ -2,7 +2,8 @@ use bevy::{math::vec3, prelude::*};
 
 use crate::{
     movement::{Direction, Movable, Speed},
-    tilesheet::{spawn_tile, TextureName, Tileset},
+    tilesheet::{spawn_tile, TextureName, Tileset, TILE_SIZE},
+    world::{CELL_0_X, COL_SCALED},
 };
 
 pub struct CarPlugin;
@@ -10,7 +11,7 @@ pub struct CarPlugin;
 impl Plugin for CarPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnCarEvent>()
-            .add_systems(Update, (timer_tick, car_spawn));
+            .add_systems(Update, (timer_tick, car_spawn, car_kill, car_counter));
     }
 }
 
@@ -135,6 +136,33 @@ fn car_spawn(
         );
 
         commands.entity(event.entity).add_child(car);
+    }
+}
+
+fn car_kill(
+    mut commands: Commands,
+    query: Query<(Entity, &Direction, &GlobalTransform), With<Car>>,
+) {
+    let safe_margins = (TILE_SIZE as f32) * 5.;
+    let left_bound = CELL_0_X - safe_margins;
+    let right_bound = CELL_0_X + COL_SCALED + safe_margins;
+    for (entity, direction, g_transform) in query.iter() {
+        let direction_x = direction.x;
+        let t_x = g_transform.translation().x;
+
+        if (direction.x > 0. && t_x > right_bound) || (direction_x < 0. && t_x < left_bound) {
+            commands.entity(entity).despawn();
+        }
+    }
+}
+
+fn car_counter(car_counter: Query<&Car>, mut count: Local<usize>) {
+    let old_count = *count;
+    let new_count = car_counter.iter().len();
+    let _ = count.set(Box::new(new_count));
+
+    if new_count != old_count {
+        info!(new_count);
     }
 }
 
